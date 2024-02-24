@@ -12,8 +12,8 @@
   display: flex;
   justify-content: center;
   width: 100%;
+  padding-bottom: 20px;
 }
-
 
 img {
   max-width: 100%;
@@ -40,6 +40,18 @@ img {
   border: 3px solid black;
   height: 70%;
   overflow-y: auto;
+}
+
+.chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+canvas {
+  max-width: 100%;
+  height: auto;
 }
 
 @media (max-width: 600px) {

@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import Papa from 'papaparse';
 import GameModal from './GameModal';
+import BarChart from './BarChart.jsx';
 
 
 export default function GameData() {
@@ -34,7 +35,7 @@ export default function GameData() {
           },
 
           error: (error) => {
-            setError('There was an error parsing the CSV data.');
+            setError('There was an error parsing the CSV data.', error);
           }
         });
       } catch (error) {
@@ -121,6 +122,9 @@ export default function GameData() {
           color="success"
           onChange={handleSearch}
         />
+      </div>
+      <div className="chart-container">
+        <BarChart />
       </div>
       {isLoading && <p>Loading game data ...</p>}
       {error && <p>{error}</p>}
