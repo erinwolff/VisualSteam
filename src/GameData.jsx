@@ -124,7 +124,7 @@ export default function GameData() {
         />
       </div>
       <div className="chart-container">
-        <BarChart />
+        {filteredGames.length > 0 && <BarChart filteredGames={filteredGames}/>}
       </div>
       {isLoading && <p>Loading game data ...</p>}
       {error && <p>{error}</p>}
