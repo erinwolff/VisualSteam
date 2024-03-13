@@ -1,118 +1,88 @@
 import React, { useState, useEffect, useRef } from 'react';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
-import Papa from 'papaparse';
-import GameModal from './GameModal';
 import BarChart from './BarChart.jsx';
+import Button from '@mui/material/Button';
+
+function getRandomGames(gamesArray, count = 15) {
+  const shuffled = gamesArray.sort(() => 0.5 - Math.random()); // Shuffle the array
+  return shuffled.slice(0, count);
+}
+
 
 
 export default function GameData() {
-  const [gameData, setGameData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filteredGames, setFilteredGames] = useState([]);
-  const timeoutRef = useRef(null);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedGame, setSelectedGame] = useState(null);
+  const [steamUserData, setSteamUserData] = useState({ response: { games: [] } });
+  const [randomGames, setRandomGames] = useState([]);
 
+  const refreshRandomGames = () => {
+    const randomSelection = getRandomGames(steamUserData.response.games);
+    setRandomGames(randomSelection);
+  };
 
 
   useEffect(() => {
-    const fetchGames = async () => {
+    const fetchSteamData = async () => {
       try {
-        const response = await fetch('../games.csv');
-        const text = await response.text();
-
-
-        Papa.parse(text, {
-          header: true,
-          complete: (results) => {
-            const randomIndex = Math.floor(Math.random() * results.data.length - 9);
-            setGameData(results.data);
-            setFilteredGames(results.data.slice(randomIndex, randomIndex + 10));
-          },
-
-          error: (error) => {
-            setError('There was an error parsing the CSV data.', error);
-          }
-        });
-      } catch (error) {
-        setError('There was an error fetching game data. Please try again later.');
-      } finally {
+        const response = await fetch('http://localhost:80/api/games');
+        const data = await response.json();
+        setSteamUserData(data);
         setIsLoading(false);
+        if (data?.response?.games?.length > 0 && randomGames.length === 0) {
+          const randomSelection = getRandomGames(data.response.games);
+          setRandomGames(randomSelection);
+        }
+      } catch (error) {
+        console.log('Error fetching Steam data: ', error);
       }
     };
-    fetchGames();
+    fetchSteamData();
   }, []);
 
+
   const handleSearch = (e) => {
-    const value = e.target.value;
+    const value = e.target.value.toLowerCase(); // Normalize for case-insensitive search
 
-    // Clear any existing timeout
-    clearTimeout(timeoutRef.current);
-
-    // Create a new timeout to call filtering
-    timeoutRef.current = setTimeout(() => {
-      doFiltering(value);
-    }, 300); // Adjust the delay as needed
-  };
-
-  const doFiltering = (value) => {
     if (value === '') {
-      const randomIndex = Math.floor(Math.random() * gameData.length - 9);
-      setFilteredGames(gameData?.slice(randomIndex, randomIndex + 10))
+      setFilteredGames(randomGames); // Reset to full game list
     } else {
-      setFilteredGames(gameData?.filter((g) =>
-        g.Name?.toLowerCase().includes(value.toLowerCase())
-      ))
+      const newFilteredGames = steamUserData.response.games.filter((game) =>
+        game.name?.toLowerCase().includes(value) // Search by 'name'
+      );
+      setFilteredGames(newFilteredGames);
     }
-  };
-
-  const shortenDescription = (desc) => {
-    const maxLength = 80; // Adjust as needed
-    return desc.length > maxLength ? desc.substring(0, maxLength) + "..." : desc;
   };
 
   const GameCardContainer = ({ displayGames }) => {
     return (
+      
       <Box sx={{ flexGrow: 1 }}>
-        <Grid container spacing={2} columns={{ xs: 1, sm: 1, md: 15 }}>
+        <h1>Playtime</h1>
+        <Grid className="game-container" container spacing={5} columns={{ xs: 1, sm: 1, md: 13 }}>
           {displayGames.map((game) => (
-            <Grid key={game.AppID} xs={1} sm={3} md={3}>
-              <h3>{game.Name}</h3>
-              <p>Released: {game["Release date"]}</p>
-              <a
-                href={game.Website ? game.Website : game["Metacritic url"]}
-                target="_blank"
-                onClick={(e) => {
-                  if (!game.Website && !game["Metacritic url"]) {
-                    e.preventDefault();
-                    alert("No website available for this game.");
-                  }
-                }}
-              >
-                <img src={game["Header image"]} alt={game.Name} />
-              </a>
-              <p>{shortenDescription(game["About the game"])}</p>
-              <Button variant="contained" size="small" color="success" onClick={() => {
-                setSelectedGame(game);
-                setShowModal(true);
-              }}>Read More</Button>
+            <Grid className="game-card" key={game.appid} xs={1} sm={2} md={2}>
+              <h3>{game.name}</h3>
+              <h4>{Math.floor(game.playtime_forever / 60) === 0
+                ? 'Less than an hour'
+                : Math.floor(game.playtime_forever / 60) === 1
+                  ? `${Math.floor(game.playtime_forever / 60)} hour`
+                  : `${Math.floor(game.playtime_forever / 60)} hours`
+              }
+              </h4>
             </Grid>
           ))}
-          {showModal && (
-            <GameModal game={selectedGame} onClose={() => setShowModal(false)} />
-          )}
         </Grid>
       </Box>
     );
   };
 
-
   return (
     <div>
+      <Button variant="outlined" color="secondary" size="small" sx={{ margin: '10px' }} onClick={refreshRandomGames}>Refresh</Button>
       <div className="search-bar">
         <TextField
           id="filled-search"
@@ -124,12 +94,22 @@ export default function GameData() {
         />
       </div>
       <div className="chart-container">
-        {filteredGames.length > 0 && <BarChart filteredGames={filteredGames}/>}
+        {filteredGames.length > 0 ? (
+          <BarChart filteredGames={filteredGames} />
+        ) : (
+          <BarChart filteredGames={randomGames} />
+        )}
       </div>
       {isLoading && <p>Loading game data ...</p>}
       {error && <p>{error}</p>}
-      {<GameCardContainer displayGames={filteredGames} />}
+      {steamUserData &&
+        (filteredGames.length > 0
+          ? <GameCardContainer displayGames={filteredGames} />  // Show filtered results
+          : <GameCardContainer displayGames={randomGames} />// Only show games with playtime >= 30 hours
+        )
+      }
     </div>
   );
 }
 
+// add input to allow other users to input their steamid 
