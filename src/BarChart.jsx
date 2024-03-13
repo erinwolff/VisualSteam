@@ -6,18 +6,18 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, BarController);
 
 export default function BarChart({ filteredGames }) {
   const chartRef = useRef(null);
-  const peakCCUData = filteredGames.map(game => game["Peak CCU"]);
+  const highPlaytime = filteredGames.map(game => Math.floor(game.playtime_forever / 60));
 
   let chartInstance = null; // Store the chart instance
 
-  const labels = filteredGames.map(game => game["Name"]);
+  const labels = filteredGames.map(game => game.name);
 
 
   const data = {
     labels: labels,
     datasets: [{
-      label: 'Peak CCU',
-      data: peakCCUData,
+      label: 'Greatest Playtime (in hours)',
+      data: highPlaytime,
       maxBarThickness: 40,
       backgroundColor: [
         'rgba(255, 99, 132, 0.6)',
