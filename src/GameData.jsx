@@ -127,6 +127,11 @@ export default function GameData() {
       <br />
       {userSummary.response.players.length > 0 ? (
         <>
+          <Tooltip placement="left-start" title="View Steam profile">
+            <a href={userSummary.response.players[0].profileurl} target="_blank" rel="noreferrer">
+              <img src={userSummary.response.players[0].avatarmedium} alt="User Avatar" />
+            </a>
+          </Tooltip>
           <h3>{userSummary.response.players[0].personaname}'s Stats</h3>
           <p>Total Games Owned: {ownedGamesData.response.game_count}</p>
         </>
@@ -144,4 +149,4 @@ export default function GameData() {
 }
 
 
-// get steam username, show more data using more endpoints
+// steam year in review - compare, level up. add new stats!
