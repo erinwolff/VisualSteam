@@ -24,7 +24,7 @@ export default function GameData() {
       const data = await response.json();
       setSteamUserData(data);
       setIsLoading(false);
-      if (data?.response?.games?.length > 0 && sortedGames.length === 0) {
+      if (data?.response?.games?.length > 0) {
         data.response.games.sort((gameA, gameB) => gameB.playtime_forever - gameA.playtime_forever);
         const top10PlaytimeGames = data.response.games.slice(0, 10);
         setSortedGames(top10PlaytimeGames);
@@ -70,6 +70,7 @@ export default function GameData() {
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
+      setSortedGames([]); // Clear the sorted games
       fetchSteamData(steamId); // Trigger data fetch with steamId
       setSteamId(''); // Clear the input field
     }
