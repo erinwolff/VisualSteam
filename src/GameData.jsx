@@ -36,9 +36,7 @@ export default function GameData() {
     try {
       const response = await fetch(`http://localhost:80/api/userSummary?steamId=${steamId}`);
       const data = await response.json();
-      console.log('data', data)
       setUserSummary(data);
-      console.log(userSummary)
     } catch (error) {
       console.log('Error fetching Steam user summary:', error);
     }
