@@ -1,28 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import BarChart from './BarChart.jsx';
-import Button from '@mui/material/Button';
 
-function getRandomGames(gamesArray, count = 10) {
-  const shuffled = gamesArray.sort(() => 0.5 - Math.random()); // Shuffle the array
-  return shuffled.slice(0, count);
-}
 
 export default function GameData() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filteredGames, setFilteredGames] = useState([]);
   const [steamUserData, setSteamUserData] = useState({ response: { games: [] } });
-  const [randomGames, setRandomGames] = useState([]);
   const [steamId, setSteamId] = useState('');
+  const [sortedGames, setSortedGames] = useState([]);
 
-  const refreshRandomGames = () => {
-    const randomSelection = getRandomGames(steamUserData.response.games);
-    setRandomGames(randomSelection);
-  };
+
 
 
   const fetchSteamData = async (steamId) => {
@@ -32,9 +24,10 @@ export default function GameData() {
       const data = await response.json();
       setSteamUserData(data);
       setIsLoading(false);
-      if (data?.response?.games?.length > 0 && randomGames.length === 0) {
-        const randomSelection = getRandomGames(data.response.games);
-        setRandomGames(randomSelection);
+      if (data?.response?.games?.length > 0 && sortedGames.length === 0) {
+        data.response.games.sort((gameA, gameB) => gameB.playtime_forever - gameA.playtime_forever);
+        const top10PlaytimeGames = data.response.games.slice(0, 10);
+        setSortedGames(top10PlaytimeGames);
       }
     } catch (error) {
       console.log('Error fetching Steam data: ', error);
@@ -116,11 +109,10 @@ export default function GameData() {
         {filteredGames.length > 0 ? (
           <BarChart filteredGames={filteredGames} />
         ) : (
-          <BarChart filteredGames={randomGames} />
+          <BarChart filteredGames={sortedGames} />
         )}
       </div>
       <br />
-      <Button variant="outlined" color="secondary" size="small" sx={{ margin: '10px' }} onClick={refreshRandomGames}>Refresh</Button>
       <br />
       <br />
       <h3>User Stats</h3>
@@ -134,3 +126,6 @@ export default function GameData() {
     </div>
   );
 }
+
+
+// get steam username, show more data using more endpoints
