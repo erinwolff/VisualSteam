@@ -16,7 +16,7 @@ export default function BarChart({ filteredGames }) {
   const data = {
     labels: labels,
     datasets: [{
-      label: 'Greatest Playtime (in hours)',
+      label: 'Total Playtime (in hours)',
       data: highPlaytime,
       maxBarThickness: 40,
       backgroundColor: [
