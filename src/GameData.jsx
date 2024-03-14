@@ -10,19 +10,17 @@ export default function GameData() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filteredGames, setFilteredGames] = useState([]);
-  const [steamUserData, setSteamUserData] = useState({ response: { games: [] } });
+  const [ownedGamesData, setOwnedGamesData] = useState({ response: { games: [] } });
+  const [userSummary, setUserSummary] = useState({ response: { players: [] } });
   const [steamId, setSteamId] = useState('');
   const [sortedGames, setSortedGames] = useState([]);
 
-
-
-
-  const fetchSteamData = async (steamId) => {
+  const fetchOwnedGamesData = async (steamId) => {
     try {
       setIsLoading(true);
       const response = await fetch(`http://localhost:80/api/games?steamId=${steamId}`);
       const data = await response.json();
-      setSteamUserData(data);
+      setOwnedGamesData(data);
       setIsLoading(false);
       if (data?.response?.games?.length > 0) {
         data.response.games.sort((gameA, gameB) => gameB.playtime_forever - gameA.playtime_forever);
@@ -34,13 +32,25 @@ export default function GameData() {
     }
   };
 
+  const fetchSteamUserSummary = async (steamId) => {
+    try {
+      const response = await fetch(`http://localhost:80/api/userSummary?steamId=${steamId}`);
+      const data = await response.json();
+      console.log('data', data)
+      setUserSummary(data);
+      console.log(userSummary)
+    } catch (error) {
+      console.log('Error fetching Steam user summary:', error);
+    }
+  }
+
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase(); // Normalize for case-insensitive search
 
     if (value === '') {
       setFilteredGames([]); // clear the search results
     } else {
-      const newFilteredGames = steamUserData.response.games.filter((game) =>
+      const newFilteredGames = ownedGamesData.response.games.filter((game) =>
         game.name?.toLowerCase().includes(value) // Search by 'name'
       );
       setFilteredGames(newFilteredGames);
@@ -71,7 +81,8 @@ export default function GameData() {
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       setSortedGames([]); // Clear the sorted games
-      fetchSteamData(steamId); // Trigger data fetch with steamId
+      fetchOwnedGamesData(steamId); // Trigger data fetch with steamId
+      fetchSteamUserSummary(steamId); // Trigger data fetch with steamId
       setSteamId(''); // Clear the input field
     }
   };
@@ -116,11 +127,17 @@ export default function GameData() {
       <br />
       <br />
       <br />
-      <h3>User Stats</h3>
-      <p>Total Games Owned: {steamUserData.response.game_count}</p>
+      {userSummary.response.players.length > 0 ? (
+        <>
+          <h3>{userSummary.response.players[0].personaname}'s Stats</h3>
+          <p>Total Games Owned: {ownedGamesData.response.game_count}</p>
+        </>
+      ) : (
+        <p>Submit your Steam ID to view your stats!</p>
+      )}
       <br />
       <br />
-      {steamUserData && filteredGames.length > 0 && (
+      {ownedGamesData && filteredGames.length > 0 && (
         <GameCardContainer displayGames={filteredGames} />
       )
       }
