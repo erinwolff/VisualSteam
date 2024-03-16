@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import TextField from '@mui/material/TextField';
-import Tooltip from '@mui/material/Tooltip';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Unstable_Grid2';
+import { Pagination, TextField, Tooltip, Box, Grid, Card } from '@mui/material';
+
 import BarChart from './BarChart.jsx';
+import DoughnutChart from './DoughnutChart.jsx';
+
+import Bart from './assets/bart.gif';
+
 
 
 export default function GameData() {
@@ -12,8 +14,10 @@ export default function GameData() {
   const [filteredGames, setFilteredGames] = useState([]);
   const [ownedGamesData, setOwnedGamesData] = useState({ response: { games: [] } });
   const [userSummary, setUserSummary] = useState({ response: { players: [] } });
+  const [recentlyPlayedGamesData, setRecentlyPlayedGamesData] = useState({ response: { games: [] } });
   const [steamId, setSteamId] = useState('');
   const [sortedGames, setSortedGames] = useState([]);
+  const [page, setPage] = useState(1);
 
   const fetchOwnedGamesData = async (steamId) => {
     try {
@@ -28,7 +32,7 @@ export default function GameData() {
         setSortedGames(top10PlaytimeGames);
       }
     } catch (error) {
-      console.log('Error fetching Steam data: ', error);
+      console.error('Error fetching Recently Played Games summary:', error);
     }
   };
 
@@ -38,9 +42,19 @@ export default function GameData() {
       const data = await response.json();
       setUserSummary(data);
     } catch (error) {
-      console.log('Error fetching Steam user summary:', error);
+      console.error('Error fetching Recently Played Games summary:', error);
     }
   }
+
+  const fetchRecentlyPlayedGamesData = async (steamId) => {
+    try {
+      const response = await fetch(`http://localhost:80/api/recentlyPlayedGames?steamId=${steamId}`);
+      const data = await response.json();
+      setRecentlyPlayedGamesData(data);
+    } catch (error) {
+      console.error('Error fetching Recently Played Games summary:', error);
+    }
+  };
 
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase(); // Normalize for case-insensitive search
@@ -56,11 +70,17 @@ export default function GameData() {
   };
 
   const GameCardContainer = ({ displayGames }) => {
+    const GAMES_PER_PAGE = 20;
+
+    const startIndex = (page - 1) * GAMES_PER_PAGE;
+    const endIndex = startIndex + GAMES_PER_PAGE;
+    const currentGames = displayGames.slice(startIndex, endIndex);
+
     return (
       <Box sx={{ flexGrow: 1 }}>
         <Grid className="game-container" container spacing={5} columns={{ xs: 1, sm: 1, md: 13 }}>
-          {displayGames.map((game) => (
-            <Grid className="game-card" key={game.appid} xs={1} sm={2} md={2}>
+          {currentGames.map((game) => (
+            <Card className="game-card" key={game.appid} sx={{ backgroundColor: '#FFE6E6', border: '1px solid #7469B6' }}>
               <h3>{game.name}</h3>
               <h4>{Math.floor(game.playtime_forever / 60) === 0
                 ? 'Less than an hour'
@@ -69,9 +89,19 @@ export default function GameData() {
                   : `${Math.floor(game.playtime_forever / 60)} hours`
               }
               </h4>
-            </Grid>
+            </Card>
           ))}
         </Grid>
+        <Pagination
+          count={Math.ceil(displayGames.length / GAMES_PER_PAGE)}
+          page={page}
+          onChange={(e, newPage) => setPage(newPage)}
+          color="secondary"
+          size="large"
+          className="pagination"
+          showFirstButton
+          showLastButton
+        />
       </Box>
     );
   };
@@ -80,23 +110,15 @@ export default function GameData() {
     if (event.key === 'Enter') {
       setSortedGames([]); // Clear the sorted games
       fetchOwnedGamesData(steamId); // Trigger data fetch with steamId
-      fetchSteamUserSummary(steamId); // Trigger data fetch with steamId
+      fetchSteamUserSummary(steamId);
+      fetchRecentlyPlayedGamesData(steamId);
       setSteamId(''); // Clear the input field
     }
   };
 
   return (
     <div>
-      <div className="search-bar">
-        <TextField
-          id="filled-search"
-          label="Search Game Titles"
-          type="search"
-          variant="outlined"
-          color="success"
-          onChange={handleSearch}
-        />
-      </div>
+      <h1>Visual Steam</h1>
       <div className="steam-id-input">
         <Tooltip placement="right-start" title="To find your Steam ID, visit your Steam User Profile. Your ID is the number at the end of your profile URL: https://steamcommunity.com/profiles/YOUR-STEAM-ID/">
           <TextField
@@ -105,7 +127,7 @@ export default function GameData() {
             type="input"
             variant="outlined"
             value={steamId}
-            color="success"
+            color="secondary"
             onChange={(e) => setSteamId(e.target.value)}
             onKeyDown={handleKeyDown}
             helperText="Press ENTER to submit"
@@ -115,38 +137,55 @@ export default function GameData() {
       {isLoading && <p>Loading game data ...</p>}
       {error && <p>{error}</p>}
       <br />
-      <div className="chart-container">
-        {filteredGames.length > 0 ? (
-          <BarChart filteredGames={filteredGames} />
-        ) : (
-          <BarChart filteredGames={sortedGames} />
-        )}
-      </div>
-      <br />
-      <br />
-      <br />
       {userSummary.response.players.length > 0 ? (
         <>
-          <Tooltip placement="left-start" title="View Steam profile">
+          <Tooltip placement="left" title="View Steam profile">
             <a href={userSummary.response.players[0].profileurl} target="_blank" rel="noreferrer">
-              <img src={userSummary.response.players[0].avatarmedium} alt="User Avatar" />
+              <img src={userSummary.response.players[0].avatarmedium} alt="User Avatar" className="avatar" />
             </a>
           </Tooltip>
-          <h3>{userSummary.response.players[0].personaname}'s Stats</h3>
-          <p>Total Games Owned: {ownedGamesData.response.game_count}</p>
+          <h2>{userSummary.response.players[0].personaname}'s Stats</h2>
+          <img src={Bart} alt="walking_soldier" />
+          <br />
+          <br />
+          <div className="chart-container">
+            <h2>Top 10 Most Played</h2>
+            <br />
+            <BarChart filteredGames={sortedGames} />
+            <br />
+            <h2>Played in the Last Two Weeks</h2>
+            <br />
+            <DoughnutChart recentlyPlayedGamesData={recentlyPlayedGamesData} />
+            <br />
+          </div>
+          <br />
+          <br />
+          <h2>Total Games Owned: {ownedGamesData.response.game_count}</h2>
+          <br />
+          <div className="search-bar">
+            <TextField
+              id="search-bar"
+              label="Search Owned Games"
+              type="search"
+              variant="outlined"
+              color="secondary"
+              onChange={handleSearch}
+            />
+          </div>
+          <br />
+          <br />
+          {(filteredGames.length > 0) ? (
+            <GameCardContainer displayGames={filteredGames} />
+          ) : (
+            <GameCardContainer displayGames={ownedGamesData.response.games} />
+          )
+          }
         </>
       ) : (
         <p>Submit your Steam ID to view your stats!</p>
       )}
-      <br />
-      <br />
-      {ownedGamesData && filteredGames.length > 0 && (
-        <GameCardContainer displayGames={filteredGames} />
-      )
-      }
     </div>
   );
 }
 
 
-// steam year in review - compare, level up. add new stats!
