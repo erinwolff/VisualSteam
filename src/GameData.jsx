@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pagination, TextField, Tooltip, Box, Grid, Card } from '@mui/material';
+import { Pagination, TextField, Tooltip, Box, Grid, Card, Dialog, Button } from '@mui/material';
 
 import BarChart from './BarChart.jsx';
 import DoughnutChart from './DoughnutChart.jsx';
@@ -18,6 +18,7 @@ export default function GameData() {
   const [steamId, setSteamId] = useState('');
   const [sortedGames, setSortedGames] = useState([]);
   const [page, setPage] = useState(1);
+  const [open, setOpen] = useState(false);
 
   const fetchOwnedGamesData = async (steamId) => {
     try {
@@ -81,14 +82,17 @@ export default function GameData() {
         <Grid className="game-container" container spacing={5} columns={{ xs: 1, sm: 1, md: 13 }}>
           {currentGames.map((game) => (
             <Card className="game-card" key={game.appid} sx={{ backgroundColor: '#FFE6E6', border: '1px solid #7469B6' }}>
+              <br />
+              <img src={`http://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`} alt="game icon" />
               <h3>{game.name}</h3>
-              <h4>{Math.floor(game.playtime_forever / 60) === 0
-                ? 'Less than an hour'
-                : Math.floor(game.playtime_forever / 60) === 1
-                  ? `${Math.floor(game.playtime_forever / 60)} hour`
-                  : `${Math.floor(game.playtime_forever / 60)} hours`
-              }
-              </h4>
+              <h5>Total Playtime:
+                {Math.floor(game.playtime_forever / 60) === 0
+                  ? ' Less than an hour'
+                  : Math.floor(game.playtime_forever / 60) === 1
+                    ? ` ${Math.floor(game.playtime_forever / 60)} hour`
+                    : ` ${Math.floor(game.playtime_forever / 60)} hours`
+                }
+              </h5>
             </Card>
           ))}
         </Grid>
@@ -116,23 +120,54 @@ export default function GameData() {
     }
   };
 
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   return (
     <div>
       <h1>Visual Steam</h1>
       <div className="steam-id-input">
-        <Tooltip placement="right-start" title="To find your Steam ID, visit your Steam User Profile. Your ID is the number at the end of your profile URL: https://steamcommunity.com/profiles/YOUR-STEAM-ID/">
-          <TextField
-            id="steam-id-input"
-            label="Steam ID"
-            type="input"
-            variant="outlined"
-            value={steamId}
-            color="secondary"
-            onChange={(e) => setSteamId(e.target.value)}
-            onKeyDown={handleKeyDown}
-            helperText="Press ENTER to submit"
-          />
-        </Tooltip>
+        <TextField
+          id="steam-id-input"
+          label="Steam ID"
+          type="input"
+          variant="outlined"
+          value={steamId}
+          color="secondary"
+          onChange={(e) => setSteamId(e.target.value)}
+          onKeyDown={handleKeyDown}
+          helperText="Press ENTER to submit"
+        />
+        <br />
+        <br />
+        {userSummary.response.players[0] === undefined ? (
+          <>
+            <Button variant="text" color="secondary" sx={{ fontWeight: "bold" }} onClick={handleOpen}>
+              How to find my Steam ID?
+            </Button>
+            <Dialog
+              open={open}
+              onClose={handleClose}
+              title="How to Find Your Steam ID"
+            >
+              <div style={{ padding: '20px' }}>
+                <h4>How to locate your numerical Steam ID</h4>
+                <p><b>Method 1: Through Your Steam Profile</b></p>
+                <ol>
+                  <li>Launch the Steam application on your computer or visit <a href ="https://steamcommunity.com/" target="_blank">https://steamcommunity.com/</a>.</li>
+                  <li>Click on your Steam username located in the top right corner of the window. From the dropdown menu, select "View My Profile."</li>
+                  <li>In your web browser's address bar, you'll see a URL. At the end of the URL, there will be a long string of numbers—this is your numerical Steam ID (Example: <u>https://steamcommunity.com/profiles/STEAM_ID_HERE</u>)</li>
+                </ol>
+                <p><b>Method 2: Within Steam Account Details</b></p>
+                <ol>
+                  <li>Launch the Steam application on your computer or visit <a href="https://steamcommunity.com/" target="_blank">https://steamcommunity.com/</a>.</li>
+                  <li>Click on your Steam username in the top right corner and select "Account Details" from the dropdown menu.</li>
+                  <li>Your Steam ID will be displayed near the top of the page, right under your Steam username.</li>
+                </ol>
+              </div>
+            </Dialog>
+          </>
+        ) : null}
       </div>
       {isLoading && <p>Loading game data ...</p>}
       {error && <p>{error}</p>}
@@ -144,6 +179,7 @@ export default function GameData() {
               <img src={userSummary.response.players[0].avatarmedium} alt="User Avatar" className="avatar" />
             </a>
           </Tooltip>
+          {userSummary.response.players[0].gameextrainfo ? (<h6>Now playing: {userSummary.response.players[0].gameextrainfo}</h6>) : null}
           <h2>{userSummary.response.players[0].personaname}'s Stats</h2>
           <img src={Bart} alt="walking_soldier" />
           <br />
