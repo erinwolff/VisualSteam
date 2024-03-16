@@ -27,7 +27,7 @@ const createApp = async () => {
   app.use("/api", require("./steamRoutes.js"));
 
   // Serve frontend files
-  app.use(express.static(path.join(__dirname, '../build')));
+  app.use(express.static(path.join(__dirname, '../../dist'))); 
 
   // Catch-all route to serve frontend
   app.get('*', (req, res) => {
