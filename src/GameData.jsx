@@ -24,7 +24,7 @@ export default function GameData() {
   const fetchOwnedGamesData = async (steamId) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:80/api/games?steamId=${steamId}`);
+      const response = await fetch(`/api/games?steamId=${steamId}`);
       const data = await response.json();
       setOwnedGamesData(data);
       setIsLoading(false);
@@ -40,7 +40,7 @@ export default function GameData() {
 
   const fetchSteamUserSummary = async (steamId) => {
     try {
-      const response = await fetch(`http://localhost:80/api/userSummary?steamId=${steamId}`);
+      const response = await fetch(`/api/userSummary?steamId=${steamId}`);
       const data = await response.json();
       setUserSummary(data);
     } catch (error) {
@@ -50,7 +50,7 @@ export default function GameData() {
 
   const fetchRecentlyPlayedGamesData = async (steamId) => {
     try {
-      const response = await fetch(`http://localhost:80/api/recentlyPlayedGames?steamId=${steamId}`);
+      const response = await fetch(`/api/recentlyPlayedGames?steamId=${steamId}`);
       const data = await response.json();
       setRecentlyPlayedGamesData(data);
     } catch (error) {
