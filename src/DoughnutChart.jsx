@@ -3,10 +3,11 @@ import { Chart as ChartJS, DoughnutController, ArcElement } from 'chart.js/auto'
 
 ChartJS.register(ArcElement, DoughnutController);
 
+const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 export default function DoughnutChart({ recentlyPlayedGamesData }) {
   const chartRef = useRef(null);
-  const recentlyPlayedGames = recentlyPlayedGamesData.response.games.map(game => Math.floor(game.playtime_forever / 60));
+  const recentlyPlayedGames = recentlyPlayedGamesData.response.games.map(game => game.playtime_2weeks);
 
   let chartInstance = null; // Store the chart instance
 
@@ -16,7 +17,7 @@ export default function DoughnutChart({ recentlyPlayedGamesData }) {
   const data = {
     labels: labels,
     datasets: [{
-      label: 'Total Playtime (in hours)',
+      label: 'Total Playtime (in minutes)',
       data: recentlyPlayedGames,
       backgroundColor: [
         'rgba(255, 99, 132, 0.6)',
@@ -53,7 +54,7 @@ export default function DoughnutChart({ recentlyPlayedGamesData }) {
         },
         legend: {
           labels: {
-            color: 'black',
+            color: 'white',
           }
         }
       },
