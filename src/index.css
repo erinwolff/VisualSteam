@@ -1,13 +1,12 @@
 :root {
-  font-family: monospace, Georgia, 'Times New Roman', Times, serif;
+  font-family: 'Roboto', sans-serif;
   line-height: 1.5;
   font-weight: 400;
   display: flex;
   justify-content: center;
 
-  color-scheme: light dark;
-  color: rgba(0, 0, 0, 0.87);
-  background-color: #d4b9b1;
+  color: black;
+  background-color: #7469B6;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
