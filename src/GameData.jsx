@@ -147,6 +147,9 @@ export default function GameData() {
           onKeyDown={handleKeyDown}
           helperText="Press ENTER to submit"
           inputRef={inputRef}
+          sx={{
+            input: {color: prefersDarkMode ? 'white' : '#FFE6E6'},
+          }}
         />
         <br />
         <br />
