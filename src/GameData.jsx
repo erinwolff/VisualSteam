@@ -20,6 +20,7 @@ export default function GameData() {
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const inputRef = useRef(null);
+  const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
   const fetchOwnedGamesData = async (steamId) => {
     try {
@@ -78,11 +79,19 @@ export default function GameData() {
     const endIndex = startIndex + GAMES_PER_PAGE;
     const currentGames = displayGames.slice(startIndex, endIndex);
 
+    
+
     return (
       <Box sx={{ flexGrow: 1 }}>
         <Grid className="game-container" container spacing={5} columns={{ xs: 1, sm: 1, md: 13 }}>
           {currentGames.map((game) => (
-            <Card className="game-card" key={game.appid} sx={{ backgroundColor: '#FFE6E6', border: '1px solid #7469B6' }}>
+            <Card
+              className="game-card"
+              key={game.appid}
+              sx={{
+                backgroundColor: prefersDarkMode ? 'white' : '#FFE6E6',
+                border: `1px solid ${prefersDarkMode ? 'white' : '#7469B6'}`,
+              }} >
               <br />
               <img src={`http://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`} alt="game icon" />
               <h3>{game.name}</h3>
@@ -155,7 +164,7 @@ export default function GameData() {
                 <h4>How to locate your numerical Steam ID</h4>
                 <p><b>Method 1: Through Your Steam Profile</b></p>
                 <ol>
-                  <li>Launch the Steam application on your computer or visit <a href ="https://steamcommunity.com/" target="_blank">https://steamcommunity.com/</a>.</li>
+                  <li>Launch the Steam application on your computer or visit <a href="https://steamcommunity.com/" target="_blank">https://steamcommunity.com/</a>.</li>
                   <li>Click on your Steam username located in the top right corner of the window. From the dropdown menu, select "View My Profile."</li>
                   <li>In your web browser's address bar, you'll see a URL. At the end of the URL, there will be a long string of numbers—this is your numerical Steam ID (Example: <u>https://steamcommunity.com/profiles/STEAM_ID_HERE</u>)</li>
                 </ol>

@@ -3,6 +3,7 @@ import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, BarController
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, BarController);
 
+const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 export default function BarChart({ filteredGames }) {
   const chartRef = useRef(null);
@@ -45,13 +46,19 @@ export default function BarChart({ filteredGames }) {
         y: {
           beginAtZero: true,
           ticks: {
-            color: 'black'
+            color: 'white'
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.2)',
           },
         },
         x: {
           type: 'category',
           ticks: {
-            color: 'black'
+            color: 'white'
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.2)',
           },
         }
       },
@@ -68,7 +75,7 @@ export default function BarChart({ filteredGames }) {
             }
           },
           labels: {
-            color: 'black'
+            color: 'white',
           },
         },
       },
