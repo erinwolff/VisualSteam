@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Pagination, TextField, Tooltip, Box, Grid, Card, Dialog, Button } from '@mui/material';
 
 import BarChart from './BarChart.jsx';
@@ -19,6 +19,7 @@ export default function GameData() {
   const [sortedGames, setSortedGames] = useState([]);
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
+  const inputRef = useRef(null);
 
   const fetchOwnedGamesData = async (steamId) => {
     try {
@@ -116,7 +117,7 @@ export default function GameData() {
       fetchOwnedGamesData(steamId); // Trigger data fetch with steamId
       fetchSteamUserSummary(steamId);
       fetchRecentlyPlayedGamesData(steamId);
-      setSteamId(''); // Clear the input field
+      inputRef.current.value = ''; // Clear the input field
     }
   };
 
@@ -132,11 +133,11 @@ export default function GameData() {
           label="Steam ID"
           type="input"
           variant="outlined"
-          value={steamId}
           color="secondary"
           onChange={(e) => setSteamId(e.target.value)}
           onKeyDown={handleKeyDown}
           helperText="Press ENTER to submit"
+          inputRef={inputRef}
         />
         <br />
         <br />
