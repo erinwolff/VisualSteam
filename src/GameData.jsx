@@ -148,7 +148,7 @@ export default function GameData() {
           helperText="Press ENTER to submit"
           inputRef={inputRef}
           sx={{
-            input: {color: prefersDarkMode ? 'white' : '#FFE6E6'},
+            input: {color: 'white'},
           }}
         />
         <br />
