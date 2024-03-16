@@ -18,7 +18,6 @@ export default function BarChart({ filteredGames }) {
     datasets: [{
       label: 'Total Playtime (in hours)',
       data: highPlaytime,
-      maxBarThickness: 40,
       backgroundColor: [
         'rgba(255, 99, 132, 0.6)',
         'rgba(255, 159, 64, 0.6)',
@@ -32,7 +31,7 @@ export default function BarChart({ filteredGames }) {
         'rgba(201, 203, 64, 0.6)',
       ],
       borderColor: [
-        'rgb(53, 53, 57)',
+        '#E1AFD1',
       ],
       borderWidth: 1
     }]
@@ -42,33 +41,40 @@ export default function BarChart({ filteredGames }) {
     type: 'bar',
     data: data,
     options: {
-      tooltips: {
-        enabled: true,
-        callbacks: {
-          label: function (tooltipItem, data) {
-            let datasetLabel = data.datasets[tooltipItem.datasetIndex].label || '';
-            let value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-            return datasetLabel + ': ' + value;
-          }
-        }
-      },
       scales: {
         y: {
           beginAtZero: true,
           ticks: {
-            color: '#000'
+            color: 'black'
           },
         },
         x: {
           type: 'category',
           ticks: {
-            color: '#000'
+            color: 'black'
           },
         }
       },
+      plugins: {
+        legend: {
+          tooltips: {
+            enabled: true,
+            callbacks: {
+              label: function (tooltipItem, data) {
+                let datasetLabel = data.datasets[tooltipItem.datasetIndex].label || '';
+                let value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                return datasetLabel + ': ' + value;
+              }
+            }
+          },
+          labels: {
+            color: 'black'
+          },
+        },
+      },
       responsive: true,
       maintainAspectRatio: false,
-    },
+    }
   };
 
   useEffect(() => {
