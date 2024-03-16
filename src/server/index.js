@@ -17,14 +17,21 @@ const createApp = async () => {
 
   const corsOptions = {
     origin: 'http://localhost:5173'
-}
+  }
 
   // API routes
 
   // /api
-  app.use(cors(corsOptions)); 
+  app.use(cors(corsOptions));
   app.use("/api", require("./steamRoutes.js"));
-  
+
+  // Serve frontend files
+  app.use(express.static(path.join(__dirname, '../build')));
+
+  // Catch-all route to serve frontend
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../build/index.html'));
+  });
 
   // Simple error handling middleware
   app.use((err, req, res, next) => {
