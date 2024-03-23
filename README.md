@@ -1,9 +1,14 @@
-# React + Vite
+# Visual Steam
+Visualize your Steam gaming data through interactive charts and visualizations! Leverages the Steam API to give you insights into your play history.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Features
 
-Currently, two official plugins are available:
+* **Top 10 Most Played Games:** View a bar chart showcasing the games you've invested the most time in.
+* **Recently Played Games:** A doughnut chart illustrating your playtime distribution over the past two weeks.
+* **Owned Games Library:** Explore your entire Steam games library with a searchable list.
+* **User Profile Summary:** See your Steam profile information and current game status.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-# VisualSteam
+## Technologies
+
+* **Backend:** Node.js, Express, Axios 
+* **Frontend:** React, Material-UI, Chart.js
